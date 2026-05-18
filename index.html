@@ -1182,23 +1182,23 @@
   }
 
   function normalize(d) {
-    // Remnawave subscription-page отдаёт { response: { user: {...}, subscriptionUrl: '...' } }
-    // Также поддерживаем плоские объекты (тест/mock)
+    // Реальная структура Remnawave:
+    // { response: { isFound, subscriptionUrl, user: { trafficUsedBytes, trafficLimitBytes, expiresAt, userStatus, username } } }
     const resp = d.response || d;
     const user = resp.user || resp;
 
-    const used  = Number(user.usedTrafficBytes ?? user.used_bytes ?? user.usedTraffic ?? user.used ?? 0);
-    const total = Number(user.trafficLimitBytes ?? user.total_bytes ?? user.dataLimit ?? user.trafficLimit ?? user.total ?? 0);
-    const expire = user.expireAt ?? user.expire_at ?? user.expire ?? user.expiry ?? null;
-    const sub_url = resp.subscriptionUrl ?? user.subscriptionUrl ?? user.subscription_url ?? user.subUrl
+    const used  = Number(user.trafficUsedBytes ?? user.usedTrafficBytes ?? user.used_bytes ?? 0);
+    const total = Number(user.trafficLimitBytes ?? user.dataLimitBytes ?? user.total_bytes ?? 0);
+    const expire = user.expiresAt ?? user.expireAt ?? user.expire_at ?? null;
+    const sub_url = resp.subscriptionUrl ?? user.subscriptionUrl ?? user.subscription_url
                     ?? window.location.href.split('#')[0].split('?')[0];
-    // happCrypt4Link — имя поля в Remnawave API для deep link
-    const happ = resp.happCrypt4Link ?? user.happCrypt4Link ?? user.happ_link ?? user.happLink
-                 ?? ('happ://add/' + encodeURIComponent(sub_url));
-    const devUsed  = Number(user.hwidDevicesCount ?? user.usedDevices ?? user.devices_used ?? user.hwidDevicesUsed ?? 0);
+    // happCrypt4Link может не приходить — строим через btoa
+    const happ = resp.happCrypt4Link ?? user.happCrypt4Link ?? user.happ_link
+                 ?? ('happ://add/' + btoa(sub_url));
+    const devUsed  = Number(user.hwidDevicesCount ?? user.usedDevices ?? user.devices_used ?? 0);
     const devTotal = Number(user.hwidDeviceLimit ?? user.deviceLimit ?? user.devices_total ?? 0);
-    const tariff = user.tariffName ?? user.tariff_name ?? user.tariff ?? user.plan ?? '';
-    const active = user.isActive ?? user.is_active ?? (user.status === 'ACTIVE' || user.status === 'active') ?? true;
+    const tariff = user.tariffName ?? user.tariff_name ?? user.tariff ?? '';
+    const active = (user.userStatus === 'ACTIVE') || user.isActive === true || d.is_active === true;
 
     return {
       username: user.username || 'anon',
