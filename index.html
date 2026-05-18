@@ -1,0 +1,1758 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a0e1a" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="description" content="<%- metaDescription %>" />
+  <title><%- metaTitle %></title>
+
+  <!-- EJS: base64-encoded JSON с данными подписки. Фоллбэк в JS если не заменился. -->
+  <script>window.__REMNA_PANEL_DATA__='<%- panelData %>';</script>
+
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%228%22%20fill%3D%22%23111827%22/%3E%3Ctext%20x%3D%2216%22%20y%3D%2222%22%20font-family%3D%22Manrope%2C%20sans-serif%22%20font-size%3D%2218%22%20font-weight%3D%22800%22%20fill%3D%22%23ee9959%22%20text-anchor%3D%22middle%22%3ER%3C/text%3E%3C/svg%3E"/>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    /* ============================================================
+       RodinaVPN Subscription Page
+       Стиль: cabinet.rodinavpn.tech
+       ============================================================ */
+
+    :root {
+      /* dark palette */
+      --color-bg: #0a0e1a;
+      --color-surface: #111827;
+      --color-surface-2: #1a2236;
+      --color-border: rgba(255, 255, 255, 0.07);
+      --color-border-strong: rgba(255, 255, 255, 0.12);
+      --color-text: #f0f4ff;
+      --color-text-muted: rgba(240, 244, 255, 0.55);
+      --color-text-dim: rgba(240, 244, 255, 0.30);
+      --color-text-faint: rgba(240, 244, 255, 0.20);
+
+      /* accent (оранжевый родинавпн) */
+      --color-accent-400: 238, 153, 89;   /* #ee9959 */
+      --color-accent-500: 231, 114, 24;   /* #e77218 */
+      --color-accent-600: 194, 96, 20;
+
+      /* status */
+      --color-success: 37, 218, 103;
+      --color-warning: 231, 114, 24;
+      --color-error: 235, 20, 20;
+
+      /* glass card */
+      --card-bg: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+      --card-bg-hover: linear-gradient(145deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.03) 100%);
+      --card-border: 1px solid rgba(255, 255, 255, 0.07);
+
+      /* sparkles */
+      --sparkle-color: 238, 153, 89;
+
+      --radius-sm: 10px;
+      --radius-md: 14px;
+      --radius-lg: 18px;
+      --radius-xl: 24px;
+
+      --shadow-card: 0 4px 30px rgba(0,0,0,0.15);
+
+      --font-text: 'Manrope', system-ui, -apple-system, sans-serif;
+      --font-display: 'Outfit', system-ui, sans-serif;
+      --font-mono: 'IBM Plex Mono', 'SF Mono', Monaco, monospace;
+    }
+
+    html.light {
+      --color-bg: #f0f4ff;
+      --color-surface: #ffffff;
+      --color-surface-2: #fbfcff;
+      --color-border: rgba(10, 14, 26, 0.08);
+      --color-border-strong: rgba(10, 14, 26, 0.15);
+      --color-text: #0a0e1a;
+      --color-text-muted: rgba(10, 14, 26, 0.60);
+      --color-text-dim: rgba(10, 14, 26, 0.35);
+      --color-text-faint: rgba(10, 14, 26, 0.20);
+
+      --card-bg: linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%);
+      --card-bg-hover: linear-gradient(145deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0.95) 100%);
+      --card-border: 1px solid rgba(10, 14, 26, 0.06);
+      --shadow-card: 0 4px 30px rgba(10, 14, 26, 0.06);
+    }
+
+    html[dir="rtl"] body { direction: rtl; }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      font-family: var(--font-text);
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      min-height: 100vh;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+    a { color: inherit; text-decoration: none; }
+
+    /* ============================================================
+       Sparkles canvas (фон)
+       ============================================================ */
+    #sparkles-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.6;
+    }
+    html.light #sparkles-canvas { opacity: 0.5; }
+
+    /* ============================================================
+       Layout
+       ============================================================ */
+    .app {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      background: color-mix(in srgb, var(--color-bg) 90%, transparent);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .header-inner {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      min-width: 0;
+    }
+    .brand-logo {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: var(--color-surface-2);
+      border: 1px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .brand-logo img { width: 100%; height: 100%; object-fit: contain; }
+    .brand-logo-fallback {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 16px;
+      color: rgb(var(--color-accent-400));
+    }
+    .brand-name {
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--color-text);
+      white-space: nowrap;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .btn-icon {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      border: 1px solid var(--color-border);
+      background: var(--card-bg);
+      color: var(--color-text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .btn-icon:hover {
+      background: var(--card-bg-hover);
+      color: rgb(var(--color-accent-400));
+      border-color: var(--color-border-strong);
+    }
+    .btn-icon svg { width: 18px; height: 18px; }
+
+    .lang-switch {
+      position: relative;
+    }
+    .lang-btn {
+      display: flex; align-items: center; gap: 6px;
+      padding: 0 10px;
+      height: 36px;
+      border-radius: 10px;
+      border: 1px solid var(--color-border);
+      background: var(--card-bg);
+      color: var(--color-text);
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .lang-btn:hover { background: var(--card-bg-hover); }
+    .lang-btn .chev { width: 12px; height: 12px; opacity: 0.5; transition: transform 0.2s; }
+    .lang-switch.open .lang-btn .chev { transform: rotate(180deg); }
+    .lang-menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      min-width: 140px;
+      padding: 6px;
+      border-radius: 12px;
+      border: 1px solid var(--color-border);
+      background: var(--color-surface);
+      box-shadow: var(--shadow-card);
+      display: none;
+      z-index: 60;
+    }
+    .lang-switch.open .lang-menu { display: block; }
+    .lang-menu button {
+      display: flex; align-items: center; gap: 8px;
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      text-align: left;
+      transition: background 0.15s;
+    }
+    .lang-menu button:hover { background: color-mix(in srgb, var(--color-text) 6%, transparent); }
+    .lang-menu button.active { background: rgba(var(--color-accent-400), 0.1); color: rgb(var(--color-accent-400)); }
+
+    /* ============================================================
+       Main
+       ============================================================ */
+    main {
+      flex: 1;
+      max-width: 720px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 24px 16px 48px;
+    }
+
+    .hero { margin-bottom: 20px; }
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--color-text);
+      line-height: 1.15;
+    }
+    @media (min-width: 640px) { .hero-title { font-size: 32px; } }
+    .hero-sub {
+      margin-top: 6px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+    .hero-sub p { color: var(--color-text-muted); font-size: 14px; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 700;
+      background: rgba(var(--color-accent-400), 0.1);
+      border: 1px solid rgba(var(--color-accent-400), 0.2);
+      color: rgb(var(--color-accent-400));
+    }
+    .badge.success {
+      background: rgba(var(--color-success), 0.1);
+      border-color: rgba(var(--color-success), 0.25);
+      color: rgb(var(--color-success));
+    }
+    .badge.error {
+      background: rgba(var(--color-error), 0.1);
+      border-color: rgba(var(--color-error), 0.25);
+      color: rgb(var(--color-error));
+    }
+    .badge svg { width: 10px; height: 10px; }
+
+    /* ============================================================
+       Glass card
+       ============================================================ */
+    .card {
+      position: relative;
+      overflow: hidden;
+      background: var(--card-bg);
+      border: var(--card-border);
+      border-radius: var(--radius-xl);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: var(--shadow-card);
+      padding: 24px;
+    }
+    @media (min-width: 640px) { .card { padding: 28px; } }
+    .card.compact { padding: 18px 20px; }
+    .card .glow {
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 200px; height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(var(--color-accent-400), 0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* ============================================================
+       Traffic card
+       ============================================================ */
+    .traffic-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .traffic-label {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 6px;
+    }
+    .traffic-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: rgb(var(--color-accent-400));
+      box-shadow: 0 0 8px rgba(var(--color-accent-400), 0.5);
+    }
+    .traffic-status {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgb(var(--color-accent-400));
+    }
+    .traffic-title {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    .traffic-percent {
+      font-family: var(--font-display);
+      font-size: 38px;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      text-align: right;
+    }
+    .traffic-percent .pct {
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--color-text-dim);
+      margin-left: 1px;
+    }
+    .traffic-bytes {
+      margin-top: 4px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--color-text-dim);
+      text-align: right;
+    }
+
+    .progress-wrap { margin-bottom: 8px; }
+    .progress {
+      position: relative;
+      height: 14px;
+      border-radius: 10px;
+      background: color-mix(in srgb, var(--color-text) 6%, transparent);
+      border: 1px solid color-mix(in srgb, var(--color-text) 4%, transparent);
+      overflow: hidden;
+    }
+    .progress-zones {
+      position: absolute; inset: 0;
+      display: flex;
+    }
+    .progress-zones > div:nth-child(1) { flex: 50; }
+    .progress-zones > div:nth-child(2) { flex: 25; background: rgba(var(--color-warning), 0.03); }
+    .progress-zones > div:nth-child(3) { flex: 15; background: rgba(var(--color-warning), 0.04); }
+    .progress-zones > div:nth-child(4) { flex: 10; background: rgba(var(--color-error), 0.05); }
+
+    .progress-fill {
+      position: absolute;
+      top: 0; bottom: 0; left: 0;
+      border-radius: 10px;
+      overflow: hidden;
+      transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+      background: rgb(var(--color-accent-400));
+    }
+    .progress-fill .shimmer {
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%);
+      animation: shimmer 2.2s linear infinite;
+    }
+    .progress-fill .top-shine {
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 50%;
+      background: linear-gradient(rgba(255,255,255,0.25) 0%, transparent 100%);
+      border-radius: 10px 10px 0 0;
+    }
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    @keyframes shimmer-unlim {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 200% 50%; }
+    }
+    .progress-divider {
+      position: absolute; top: 0; bottom: 0;
+      width: 1px;
+      background: rgba(255,255,255,0.08);
+    }
+    html.light .progress-divider { background: rgba(10,14,26,0.08); }
+    .progress-glow {
+      position: absolute;
+      top: -4px; bottom: -4px;
+      width: 16px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(var(--color-accent-400), 0.38), transparent);
+      filter: blur(4px);
+      pointer-events: none;
+      transition: left 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .progress-scale {
+      margin-top: 6px;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 2px;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      font-weight: 500;
+      color: var(--color-text-faint);
+    }
+
+    /* ============================================================
+       Info grid (тариф / срок / устройства)
+       ============================================================ */
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .info-card {
+      padding: 14px;
+      border-radius: var(--radius-md);
+      background: rgba(var(--color-accent-400), 0.04);
+      border: 1px solid rgba(var(--color-accent-400), 0.08);
+    }
+    .info-card.neutral {
+      background: color-mix(in srgb, var(--color-text) 3%, transparent);
+      border: 1px solid color-mix(in srgb, var(--color-text) 4%, transparent);
+    }
+    .info-card-label {
+      display: flex; align-items: center; gap: 6px;
+      margin-bottom: 6px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgb(var(--color-accent-400));
+    }
+    .info-card.neutral .info-card-label { color: var(--color-text-dim); }
+    .info-card-icon {
+      width: 22px; height: 22px;
+      border-radius: 6px;
+      background: rgba(var(--color-accent-400), 0.1);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .info-card.neutral .info-card-icon {
+      background: color-mix(in srgb, var(--color-text) 5%, transparent);
+    }
+    .info-card-icon svg { width: 12px; height: 12px; }
+    .info-card-value {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      line-height: 1.15;
+    }
+    .info-card-value .unit {
+      font-family: var(--font-text);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--color-text-dim);
+      margin-left: 4px;
+    }
+    .info-card-sub {
+      margin-top: 4px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--color-text-dim);
+    }
+
+    .devices-card {
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px;
+      border-radius: var(--radius-md);
+      background: var(--card-bg);
+      border: var(--card-border);
+    }
+    .devices-icon {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: rgba(var(--color-accent-400), 0.07);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .devices-icon svg { width: 16px; height: 16px; stroke: rgb(var(--color-accent-400)); }
+    .devices-text { flex: 1; min-width: 0; }
+    .devices-title { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; }
+    .devices-sub { margin-top: 2px; font-size: 11px; color: var(--color-text-dim); }
+    .devices-dots { display: flex; gap: 5px; flex-shrink: 0; }
+    .devices-dots .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: color-mix(in srgb, var(--color-text) 8%, transparent);
+    }
+    .devices-dots .dot.on {
+      background: rgb(var(--color-accent-400));
+      box-shadow: 0 0 6px rgba(var(--color-accent-400), 0.4);
+    }
+
+    /* ============================================================
+       Section header
+       ============================================================ */
+    .section { margin-top: 28px; }
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      padding: 0 2px;
+    }
+    .section-title {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+    }
+    .section-hint {
+      font-size: 11px;
+      color: var(--color-text-faint);
+      font-family: var(--font-mono);
+    }
+
+    /* ============================================================
+       Install steps (Happ)
+       ============================================================ */
+    .platform-tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 16px;
+      padding: 4px;
+      border-radius: 14px;
+      background: color-mix(in srgb, var(--color-text) 3%, transparent);
+      border: 1px solid var(--color-border);
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .platform-tabs::-webkit-scrollbar { display: none; }
+    .platform-tab {
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      transition: all 0.2s;
+      display: flex; align-items: center; gap: 6px;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+    @media (min-width: 640px) {
+      .platform-tab { flex: 1; justify-content: center; }
+    }
+    .platform-tab:hover { color: var(--color-text); background: color-mix(in srgb, var(--color-text) 4%, transparent); }
+    .platform-tab.active {
+      background: rgba(var(--color-accent-400), 0.12);
+      color: rgb(var(--color-accent-400));
+      box-shadow: inset 0 0 0 1px rgba(var(--color-accent-400), 0.2);
+    }
+    .platform-tab svg { width: 14px; height: 14px; }
+
+    .steps { display: flex; flex-direction: column; gap: 12px; }
+    .step {
+      display: flex; gap: 14px;
+      padding: 16px;
+      border-radius: var(--radius-md);
+      background: color-mix(in srgb, var(--color-text) 2%, transparent);
+      border: 1px solid var(--color-border);
+    }
+    .step-num {
+      flex-shrink: 0;
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      background: rgba(var(--color-accent-400), 0.1);
+      color: rgb(var(--color-accent-400));
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 14px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .step-body { flex: 1; min-width: 0; }
+    .step-title {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin-bottom: 4px;
+    }
+    .step-desc {
+      font-size: 13px;
+      color: var(--color-text-muted);
+      line-height: 1.5;
+    }
+    .step-buttons {
+      margin-top: 12px;
+      display: flex; flex-wrap: wrap; gap: 8px;
+    }
+    .step-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      background: var(--color-surface-2);
+      border: 1px solid var(--color-border);
+      color: var(--color-text);
+      transition: all 0.2s;
+    }
+    .step-btn:hover {
+      background: color-mix(in srgb, var(--color-text) 8%, var(--color-surface-2));
+      border-color: var(--color-border-strong);
+    }
+    .step-btn.primary {
+      background: rgb(var(--color-accent-500));
+      color: white;
+      border-color: rgb(var(--color-accent-500));
+      box-shadow: 0 4px 16px rgba(var(--color-accent-500), 0.3);
+    }
+    .step-btn.primary:hover {
+      background: rgb(var(--color-accent-600));
+      border-color: rgb(var(--color-accent-600));
+      transform: translateY(-1px);
+    }
+    .step-btn svg { width: 14px; height: 14px; }
+
+    /* ============================================================
+       Action grid (4 кнопки: канал/чат/бот/поддержка)
+       ============================================================ */
+    .actions {
+      margin-top: 24px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    @media (min-width: 560px) {
+      .actions { grid-template-columns: repeat(4, 1fr); }
+    }
+    .action-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 16px 12px;
+      border-radius: var(--radius-md);
+      background: var(--card-bg);
+      border: var(--card-border);
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .action-btn:hover {
+      background: var(--card-bg-hover);
+      border-color: rgba(var(--color-accent-400), 0.3);
+      transform: translateY(-2px);
+    }
+    .action-icon {
+      width: 38px; height: 38px;
+      border-radius: 10px;
+      background: rgba(var(--color-accent-400), 0.1);
+      display: flex; align-items: center; justify-content: center;
+      color: rgb(var(--color-accent-400));
+    }
+    .action-icon svg { width: 18px; height: 18px; }
+    .action-title { font-size: 13px; font-weight: 700; letter-spacing: -0.01em; }
+    .action-desc { font-size: 11px; color: var(--color-text-dim); }
+
+    .cabinet-link {
+      margin-top: 20px;
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px;
+      padding: 14px;
+      border-radius: var(--radius-md);
+      background: rgba(var(--color-accent-400), 0.05);
+      border: 1px solid rgba(var(--color-accent-400), 0.12);
+      color: rgb(var(--color-accent-400));
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    .cabinet-link:hover {
+      background: rgba(var(--color-accent-400), 0.1);
+      border-color: rgba(var(--color-accent-400), 0.25);
+    }
+    .cabinet-link svg { width: 16px; height: 16px; }
+
+    /* ============================================================
+       Toast
+       ============================================================ */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      padding: 12px 20px;
+      border-radius: 12px;
+      background: rgb(var(--color-success));
+      color: white;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 100;
+      pointer-events: none;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ============================================================
+       Footer
+       ============================================================ */
+    .footer {
+      max-width: 720px;
+      margin: 32px auto 0;
+      padding: 24px 16px 32px;
+      text-align: center;
+      font-size: 11px;
+      color: var(--color-text-faint);
+    }
+    .footer a { color: var(--color-text-dim); text-decoration: underline; text-underline-offset: 2px; }
+
+    /* RTL adjustments */
+    html[dir="rtl"] .traffic-percent,
+    html[dir="rtl"] .traffic-bytes { text-align: left; }
+    html[dir="rtl"] .lang-menu { right: auto; left: 0; }
+
+    /* ============================================================
+       Loading state
+       ============================================================ */
+    .skeleton {
+      background: linear-gradient(90deg,
+        color-mix(in srgb, var(--color-text) 5%, transparent) 0%,
+        color-mix(in srgb, var(--color-text) 10%, transparent) 50%,
+        color-mix(in srgb, var(--color-text) 5%, transparent) 100%);
+      background-size: 200% 100%;
+      animation: skeleton-pulse 1.4s ease-in-out infinite;
+      border-radius: 8px;
+    }
+    @keyframes skeleton-pulse {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* selection */
+    ::selection {
+      background: rgba(var(--color-accent-400), 0.3);
+      color: var(--color-text);
+    }
+  </style>
+</head>
+<body>
+  <canvas id="sparkles-canvas"></canvas>
+
+  <div class="app">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-inner">
+        <a class="brand" href="/" id="brand-link">
+          <div class="brand-logo" id="brand-logo">
+            <span class="brand-logo-fallback">R</span>
+          </div>
+          <span class="brand-name" id="brand-name">RodinaVPN</span>
+        </a>
+
+        <div class="header-actions">
+          <button class="btn-icon" id="theme-toggle" title="Theme" aria-label="Theme">
+            <!-- icon swapped in JS -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"/>
+            </svg>
+          </button>
+
+          <div class="lang-switch" id="lang-switch">
+            <button class="lang-btn" id="lang-btn">
+              <span id="lang-flag">🇷🇺</span>
+              <span id="lang-code">RU</span>
+              <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 9l6 6 6-6"/>
+              </svg>
+            </button>
+            <div class="lang-menu" id="lang-menu"></div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- Hero -->
+      <section class="hero">
+        <h1 class="hero-title" id="hero-greeting">Привет, anon!</h1>
+        <div class="hero-sub">
+          <p id="hero-sub-text">Твоя подписка</p>
+          <span class="badge" id="status-badge">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <span id="status-text">Активна</span>
+          </span>
+        </div>
+      </section>
+
+      <!-- Traffic card -->
+      <section class="card">
+        <div class="glow"></div>
+        <div class="traffic-header">
+          <div>
+            <div class="traffic-label">
+              <div class="traffic-dot" id="traffic-dot"></div>
+              <span class="traffic-status" id="traffic-status">НОРМА</span>
+            </div>
+            <h2 class="traffic-title" id="traffic-title">Расход трафика</h2>
+          </div>
+          <div>
+            <div class="traffic-percent">
+              <span id="traffic-percent-val">0</span><span class="pct">%</span>
+            </div>
+            <div class="traffic-bytes" id="traffic-bytes">0 GB / 0 GB</div>
+          </div>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" id="progressbar">
+            <div class="progress-zones" aria-hidden="true">
+              <div></div><div></div><div></div><div></div>
+            </div>
+            <div class="progress-fill" id="progress-fill" style="width: 0%">
+              <div class="top-shine"></div>
+              <div class="shimmer"></div>
+            </div>
+            <div class="progress-divider" style="left: 50%"></div>
+            <div class="progress-divider" style="left: 75%"></div>
+            <div class="progress-divider" style="left: 90%"></div>
+            <div class="progress-glow" id="progress-glow" style="left: -8px"></div>
+          </div>
+          <div class="progress-scale" id="progress-scale">
+            <span>0</span><span></span><span></span><span></span><span></span>
+          </div>
+        </div>
+
+        <!-- Info grid -->
+        <div class="info-grid">
+          <div class="info-card">
+            <div class="info-card-label">
+              <div class="info-card-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+                </svg>
+              </div>
+              <span id="tariff-label">ТАРИФ</span>
+            </div>
+            <div class="info-card-value" id="tariff-value">—</div>
+            <div class="info-card-sub" id="tariff-sub"></div>
+          </div>
+          <div class="info-card neutral">
+            <div class="info-card-label">
+              <div class="info-card-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+                </svg>
+              </div>
+              <span id="expires-label">ОСТАЛОСЬ</span>
+            </div>
+            <div class="info-card-value">
+              <span id="days-value">—</span><span class="unit" id="days-unit">дн.</span>
+            </div>
+            <div class="info-card-sub" id="expires-sub"></div>
+          </div>
+        </div>
+
+        <!-- Devices -->
+        <div class="devices-card" id="devices-card">
+          <div class="devices-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M12 17v4M8 21h8"/>
+            </svg>
+          </div>
+          <div class="devices-text">
+            <div class="devices-title" id="devices-title">Устройства</div>
+            <div class="devices-sub" id="devices-sub">— из —</div>
+          </div>
+          <div class="devices-dots" id="devices-dots"></div>
+        </div>
+      </section>
+
+      <!-- Install steps -->
+      <section class="section">
+        <div class="section-header">
+          <div class="section-title" id="install-title">Установка</div>
+          <div class="section-hint" id="install-hint">Happ · подключение в 3 шага</div>
+        </div>
+
+        <div class="platform-tabs" id="platform-tabs"></div>
+
+        <div class="steps" id="steps"></div>
+      </section>
+
+      <!-- Action buttons -->
+      <section class="actions" id="actions-grid"></section>
+
+      <a class="cabinet-link" id="cabinet-link" href="https://cabinet.rodinavpn.tech" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 3h6v6M14 10l7-7M19 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6"/>
+        </svg>
+        <span id="cabinet-label">Открыть личный кабинет</span>
+      </a>
+    </main>
+
+    <footer class="footer">
+      <span id="footer-text">RodinaVPN © 2026</span>
+    </footer>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <!-- EJS: бэкенд Remnawave вставит сюда base64-encoded JSON с данными подписки -->
+  <script>window.__REMNA_PANEL_DATA__ = '<%- panelData %>';</script>
+
+  <script>
+  /* =========================================================================
+     RodinaVPN subscription page logic
+     ========================================================================= */
+
+  // --- i18n ----------------------------------------------------------------
+  const I18N = {
+    ru: {
+      flag: '🇷🇺', code: 'RU', dir: 'ltr',
+      meta_title: 'RodinaVPN — Подписка',
+      greeting: 'Привет, {name}!',
+      hero_sub: 'Твоя подписка',
+      status_active: 'Активна',
+      status_inactive: 'Неактивна',
+      status_expired: 'Истекла',
+      traffic_title: 'Расход трафика',
+      traffic_norm: 'НОРМА',
+      traffic_attention: 'ВНИМАНИЕ',
+      traffic_critical: 'КРИТИЧНО',
+      traffic_unlim: 'БЕЗЛИМИТ',
+      tariff: 'ТАРИФ',
+      expires: 'ОСТАЛОСЬ',
+      days_short: 'дн.',
+      until: 'до',
+      indefinitely: 'Бессрочно',
+      devices: 'Устройства',
+      devices_of: '{used} из {total}',
+      install: 'Установка',
+      install_hint: 'Happ · подключение в 3 шага',
+      cabinet_btn: 'Открыть личный кабинет',
+      footer: 'RodinaVPN © 2026',
+      platforms: {
+        ios: 'iPhone', android: 'Android', windows: 'Windows',
+        macos: 'macOS', appleTV: 'Apple TV', androidTV: 'Android TV'
+      },
+      actions: {
+        channel: { title: 'Канал', desc: 'Новости' },
+        chat: { title: 'Чат', desc: 'Сообщество' },
+        bot: { title: 'Бот', desc: 'Подписки' },
+        support: { title: 'Поддержка', desc: 'Помощь' }
+      }
+    },
+    en: {
+      flag: '🇬🇧', code: 'EN', dir: 'ltr',
+      meta_title: 'RodinaVPN — Subscription',
+      greeting: 'Hi, {name}!',
+      hero_sub: 'Your subscription',
+      status_active: 'Active',
+      status_inactive: 'Inactive',
+      status_expired: 'Expired',
+      traffic_title: 'Traffic usage',
+      traffic_norm: 'NORMAL',
+      traffic_attention: 'ATTENTION',
+      traffic_critical: 'CRITICAL',
+      traffic_unlim: 'UNLIMITED',
+      tariff: 'PLAN',
+      expires: 'EXPIRES IN',
+      days_short: 'd',
+      until: 'until',
+      indefinitely: 'Forever',
+      devices: 'Devices',
+      devices_of: '{used} of {total}',
+      install: 'Installation',
+      install_hint: 'Happ · connect in 3 steps',
+      cabinet_btn: 'Open dashboard',
+      footer: 'RodinaVPN © 2026',
+      platforms: {
+        ios: 'iPhone', android: 'Android', windows: 'Windows',
+        macos: 'macOS', appleTV: 'Apple TV', androidTV: 'Android TV'
+      },
+      actions: {
+        channel: { title: 'Channel', desc: 'News' },
+        chat: { title: 'Chat', desc: 'Community' },
+        bot: { title: 'Bot', desc: 'Subscriptions' },
+        support: { title: 'Support', desc: 'Help' }
+      }
+    },
+    zh: {
+      flag: '🇨🇳', code: 'ZH', dir: 'ltr',
+      meta_title: 'RodinaVPN — 订阅',
+      greeting: '你好，{name}！',
+      hero_sub: '你的订阅',
+      status_active: '激活',
+      status_inactive: '未激活',
+      status_expired: '已过期',
+      traffic_title: '流量使用',
+      traffic_norm: '正常',
+      traffic_attention: '注意',
+      traffic_critical: '严重',
+      traffic_unlim: '无限',
+      tariff: '套餐',
+      expires: '剩余',
+      days_short: '天',
+      until: '至',
+      indefinitely: '永久',
+      devices: '设备',
+      devices_of: '{used} / {total}',
+      install: '安装',
+      install_hint: 'Happ · 三步连接',
+      cabinet_btn: '打开个人中心',
+      footer: 'RodinaVPN © 2026',
+      platforms: {
+        ios: 'iPhone', android: 'Android', windows: 'Windows',
+        macos: 'macOS', appleTV: 'Apple TV', androidTV: 'Android TV'
+      },
+      actions: {
+        channel: { title: '频道', desc: '新闻' },
+        chat: { title: '聊天', desc: '社区' },
+        bot: { title: '机器人', desc: '订阅' },
+        support: { title: '支持', desc: '帮助' }
+      }
+    },
+    fa: {
+      flag: '🇮🇷', code: 'FA', dir: 'rtl',
+      meta_title: 'RodinaVPN — اشتراک',
+      greeting: 'سلام، {name}!',
+      hero_sub: 'اشتراک شما',
+      status_active: 'فعال',
+      status_inactive: 'غیرفعال',
+      status_expired: 'منقضی شده',
+      traffic_title: 'مصرف ترافیک',
+      traffic_norm: 'عادی',
+      traffic_attention: 'هشدار',
+      traffic_critical: 'بحرانی',
+      traffic_unlim: 'نامحدود',
+      tariff: 'تعرفه',
+      expires: 'باقی‌مانده',
+      days_short: 'روز',
+      until: 'تا',
+      indefinitely: 'دائمی',
+      devices: 'دستگاه‌ها',
+      devices_of: '{used} از {total}',
+      install: 'نصب',
+      install_hint: 'Happ · اتصال در ۳ مرحله',
+      cabinet_btn: 'باز کردن داشبورد',
+      footer: 'RodinaVPN © 2026',
+      platforms: {
+        ios: 'iPhone', android: 'Android', windows: 'Windows',
+        macos: 'macOS', appleTV: 'Apple TV', androidTV: 'Android TV'
+      },
+      actions: {
+        channel: { title: 'کانال', desc: 'اخبار' },
+        chat: { title: 'گفتگو', desc: 'جامعه' },
+        bot: { title: 'ربات', desc: 'اشتراک‌ها' },
+        support: { title: 'پشتیبانی', desc: 'کمک' }
+      }
+    },
+    fr: {
+      flag: '🇫🇷', code: 'FR', dir: 'ltr',
+      meta_title: 'RodinaVPN — Abonnement',
+      greeting: 'Salut, {name} !',
+      hero_sub: 'Ton abonnement',
+      status_active: 'Actif',
+      status_inactive: 'Inactif',
+      status_expired: 'Expiré',
+      traffic_title: 'Utilisation du trafic',
+      traffic_norm: 'NORMAL',
+      traffic_attention: 'ATTENTION',
+      traffic_critical: 'CRITIQUE',
+      traffic_unlim: 'ILLIMITÉ',
+      tariff: 'FORFAIT',
+      expires: 'RESTANT',
+      days_short: 'j',
+      until: 'jusqu’au',
+      indefinitely: 'Permanent',
+      devices: 'Appareils',
+      devices_of: '{used} sur {total}',
+      install: 'Installation',
+      install_hint: 'Happ · connexion en 3 étapes',
+      cabinet_btn: 'Ouvrir le tableau de bord',
+      footer: 'RodinaVPN © 2026',
+      platforms: {
+        ios: 'iPhone', android: 'Android', windows: 'Windows',
+        macos: 'macOS', appleTV: 'Apple TV', androidTV: 'Android TV'
+      },
+      actions: {
+        channel: { title: 'Canal', desc: 'Actus' },
+        chat: { title: 'Chat', desc: 'Communauté' },
+        bot: { title: 'Bot', desc: 'Abonnements' },
+        support: { title: 'Support', desc: 'Aide' }
+      }
+    }
+  };
+
+  const LOCALE_ORDER = ['ru', 'en', 'zh', 'fa', 'fr'];
+
+  /* =========================================================================
+     Подписочные данные
+     Источники приоритета:
+       1. window.__REMNA_PANEL_DATA__ (EJS <%- panelData %> — base64 JSON, основной)
+       2. window.__SUBSCRIPTION_INFO__ (для тестирования через init_script)
+       3. mock для локального превью
+     ========================================================================= */
+
+  const MOCK = {
+    username: 'anon',
+    used_bytes: 9.9 * 1024 * 1024 * 1024,
+    total_bytes: 250 * 1024 * 1024 * 1024,
+    expire_at: new Date(Date.now() + 364 * 24 * 60 * 60 * 1000).toISOString(),
+    is_active: true,
+    subscription_url: window.location.origin + window.location.pathname,
+    happ_link: 'happ://add/' + encodeURIComponent(window.location.origin + window.location.pathname),
+    devices_used: 1,
+    devices_total: 5,
+    tariff_name: 'ULTRA'
+  };
+
+  function loadSubscriptionData() {
+    // 1. EJS panelData (base64 JSON) — работает когда страница отдаётся Remnawave бэкендом
+    const raw = window.__REMNA_PANEL_DATA__;
+    if (raw && typeof raw === 'string' && raw.length > 10 && !raw.includes('<%')) {
+      try {
+        const parsed = JSON.parse(atob(raw));
+        return Promise.resolve(normalize(parsed));
+      } catch (e) {
+        console.warn('panelData parse error:', e);
+      }
+    }
+    // 2. Ручной инжект для тестирования (через init_script playwright или консоль)
+    if (window.__SUBSCRIPTION_INFO__) return Promise.resolve(normalize(window.__SUBSCRIPTION_INFO__));
+    // 3. Mock для локального превью
+    return Promise.resolve(normalize(MOCK));
+  }
+
+  function normalize(d) {
+    // Remnawave subscription-page отдаёт { response: { user: {...}, subscriptionUrl: '...' } }
+    // Также поддерживаем плоские объекты (тест/mock)
+    const resp = d.response || d;
+    const user = resp.user || resp;
+
+    const used  = Number(user.usedTrafficBytes ?? user.used_bytes ?? user.usedTraffic ?? user.used ?? 0);
+    const total = Number(user.trafficLimitBytes ?? user.total_bytes ?? user.dataLimit ?? user.trafficLimit ?? user.total ?? 0);
+    const expire = user.expireAt ?? user.expire_at ?? user.expire ?? user.expiry ?? null;
+    const sub_url = resp.subscriptionUrl ?? user.subscriptionUrl ?? user.subscription_url ?? user.subUrl
+                    ?? window.location.href.split('#')[0].split('?')[0];
+    // happCrypt4Link — имя поля в Remnawave API для deep link
+    const happ = resp.happCrypt4Link ?? user.happCrypt4Link ?? user.happ_link ?? user.happLink
+                 ?? ('happ://add/' + encodeURIComponent(sub_url));
+    const devUsed  = Number(user.hwidDevicesCount ?? user.usedDevices ?? user.devices_used ?? user.hwidDevicesUsed ?? 0);
+    const devTotal = Number(user.hwidDeviceLimit ?? user.deviceLimit ?? user.devices_total ?? 0);
+    const tariff = user.tariffName ?? user.tariff_name ?? user.tariff ?? user.plan ?? '';
+    const active = user.isActive ?? user.is_active ?? (user.status === 'ACTIVE' || user.status === 'active') ?? true;
+
+    return {
+      username: user.username || 'anon',
+      used_bytes: used,
+      total_bytes: total,
+      expire_at: expire,
+      is_active: active !== false,
+      subscription_url: sub_url,
+      happ_link: happ,
+      devices_used: devUsed,
+      devices_total: devTotal,
+      tariff_name: tariff
+    };
+  }
+
+  /* =========================================================================
+     State
+     ========================================================================= */
+  const state = {
+    locale: localStorage.getItem('rvpn-lang') || pickLocale(),
+    theme: localStorage.getItem('rvpn-theme') || 'dark',
+    platform: detectPlatform(),
+    sub: null
+  };
+
+  function pickLocale() {
+    const n = (navigator.language || 'ru').toLowerCase();
+    if (n.startsWith('en')) return 'en';
+    if (n.startsWith('zh')) return 'zh';
+    if (n.startsWith('fa')) return 'fa';
+    if (n.startsWith('fr')) return 'fr';
+    return 'ru';
+  }
+
+  function detectPlatform() {
+    const ua = navigator.userAgent;
+    if (/iPhone|iPad|iPod/.test(ua)) return 'ios';
+    if (/Android/.test(ua)) return 'android';
+    if (/Mac/.test(ua)) return 'macos';
+    if (/Windows/.test(ua)) return 'windows';
+    return 'ios';
+  }
+
+  function t(key, vars) {
+    const dict = I18N[state.locale] || I18N.ru;
+    let v = key.split('.').reduce((o, k) => (o ? o[k] : undefined), dict);
+    if (v == null) v = key.split('.').reduce((o, k) => (o ? o[k] : undefined), I18N.ru);
+    if (typeof v !== 'string') return v ?? key;
+    if (vars) for (const k in vars) v = v.replace('{' + k + '}', vars[k]);
+    return v;
+  }
+
+  /* =========================================================================
+     Theme
+     ========================================================================= */
+  function applyTheme(theme) {
+    document.documentElement.classList.remove('dark', 'light');
+    document.documentElement.classList.add(theme);
+    localStorage.setItem('rvpn-theme', theme);
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', theme === 'dark' ? '#0a0e1a' : '#f0f4ff');
+    // swap icon
+    const btn = document.getElementById('theme-toggle');
+    btn.innerHTML = theme === 'dark'
+      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>'
+      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"/></svg>';
+    state.theme = theme;
+  }
+
+  /* =========================================================================
+     Lang
+     ========================================================================= */
+  function applyLocale(loc) {
+    if (!I18N[loc]) loc = 'ru';
+    state.locale = loc;
+    localStorage.setItem('rvpn-lang', loc);
+    const dict = I18N[loc];
+    document.documentElement.setAttribute('lang', loc);
+    document.documentElement.setAttribute('dir', dict.dir || 'ltr');
+    document.title = dict.meta_title;
+    document.getElementById('lang-flag').textContent = dict.flag;
+    document.getElementById('lang-code').textContent = dict.code;
+    renderAll();
+  }
+
+  function buildLangMenu() {
+    const menu = document.getElementById('lang-menu');
+    menu.innerHTML = '';
+    LOCALE_ORDER.forEach(loc => {
+      const d = I18N[loc];
+      const b = document.createElement('button');
+      b.innerHTML = `<span>${d.flag}</span><span>${d.code}</span>`;
+      b.dataset.loc = loc;
+      if (loc === state.locale) b.classList.add('active');
+      b.onclick = () => {
+        applyLocale(loc);
+        document.getElementById('lang-switch').classList.remove('open');
+        buildLangMenu();
+      };
+      menu.appendChild(b);
+    });
+  }
+
+  /* =========================================================================
+     Sparkles canvas
+     Жёлто-оранжевые искры — то появляются, то исчезают
+     ========================================================================= */
+  (function sparkles() {
+    const canvas = document.getElementById('sparkles-canvas');
+    const ctx = canvas.getContext('2d');
+    let dpr = Math.min(window.devicePixelRatio || 1, 2);
+    let w, h, particles = [];
+
+    function resize() {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      w = window.innerWidth;
+      h = window.innerHeight;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      canvas.style.width = w + 'px';
+      canvas.style.height = h + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const count = Math.min(80, Math.floor(w * h / 18000));
+      particles = [];
+      for (let i = 0; i < count; i++) particles.push(spawn());
+    }
+
+    function spawn(reset) {
+      const lifeMax = 2200 + Math.random() * 3000;
+      return {
+        x: Math.random() * w,
+        y: Math.random() * h,
+        r: 0.5 + Math.random() * 1.8,
+        life: reset ? 0 : Math.random() * lifeMax,
+        lifeMax,
+        twinkle: Math.random() * Math.PI * 2,
+        twinkleSpeed: 0.001 + Math.random() * 0.003
+      };
+    }
+
+    let last = performance.now();
+    function tick(now) {
+      const dt = Math.min(40, now - last);
+      last = now;
+      ctx.clearRect(0, 0, w, h);
+      for (let p of particles) {
+        p.life += dt;
+        p.twinkle += p.twinkleSpeed * dt;
+        if (p.life >= p.lifeMax) {
+          Object.assign(p, spawn(true));
+          p.x = Math.random() * w;
+          p.y = Math.random() * h;
+        }
+        // fade in / out
+        const t = p.life / p.lifeMax;
+        const envelope = Math.sin(t * Math.PI); // 0..1..0
+        const sparkle = 0.5 + 0.5 * Math.sin(p.twinkle);
+        const alpha = envelope * (0.3 + 0.7 * sparkle) * 0.85;
+        if (alpha <= 0.01) continue;
+        // Цвет — берём из CSS var
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(238, 153, 89, ${alpha})`;
+        ctx.fill();
+        // мягкое свечение
+        if (p.r > 1) {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r * 2.6, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(238, 153, 89, ${alpha * 0.10})`;
+          ctx.fill();
+        }
+      }
+      requestAnimationFrame(tick);
+    }
+
+    window.addEventListener('resize', resize);
+    resize();
+    requestAnimationFrame(tick);
+  })();
+
+  /* =========================================================================
+     Formatters
+     ========================================================================= */
+  function esc(s) {
+    if (s == null) return '';
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function formatBytes(b, alwaysFrac) {
+    if (!b || b < 0) return '0 B';
+    const u = ['B', 'KB', 'MB', 'GB', 'TB'];
+    let i = 0; let v = b;
+    while (v >= 1024 && i < u.length - 1) { v /= 1024; i++; }
+    let frac = alwaysFrac ? 1 : (v < 10 ? 1 : 0);
+    // если целое — обходимся без дробной части
+    if (!alwaysFrac && Math.abs(v - Math.round(v)) < 0.05) frac = 0;
+    return v.toFixed(frac) + ' ' + u[i];
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (isNaN(d)) return '';
+    const fmt = new Intl.DateTimeFormat(state.locale === 'zh' ? 'zh-CN' : state.locale, {
+      day: '2-digit', month: '2-digit', year: 'numeric'
+    });
+    return fmt.format(d);
+  }
+
+  function daysLeft(iso) {
+    if (!iso) return null;
+    const d = new Date(iso);
+    if (isNaN(d)) return null;
+    return Math.max(0, Math.ceil((d - Date.now()) / 86400000));
+  }
+
+  /* =========================================================================
+     Renderers
+     ========================================================================= */
+  function renderHero() {
+    const s = state.sub;
+    document.getElementById('hero-greeting').textContent = t('greeting', { name: s.username });
+    document.getElementById('hero-sub-text').textContent = t('hero_sub');
+    const badge = document.getElementById('status-badge');
+    badge.classList.remove('success', 'error');
+    const txt = document.getElementById('status-text');
+    const dLeft = daysLeft(s.expire_at);
+    if (s.is_active && (dLeft === null || dLeft > 0)) {
+      badge.classList.add('success');
+      txt.textContent = t('status_active');
+    } else if (dLeft !== null && dLeft <= 0) {
+      badge.classList.add('error');
+      txt.textContent = t('status_expired');
+    } else {
+      badge.classList.add('error');
+      txt.textContent = t('status_inactive');
+    }
+  }
+
+  function renderTraffic() {
+    const s = state.sub;
+    document.getElementById('traffic-title').textContent = t('traffic_title');
+
+    const unlim = s.total_bytes <= 0;
+    const pct = unlim ? 0 : Math.min(100, (s.used_bytes / s.total_bytes) * 100);
+
+    let statusKey = 'traffic_norm', color = 'var(--color-accent-400)';
+    if (unlim) statusKey = 'traffic_unlim';
+    else if (pct >= 90) { statusKey = 'traffic_critical'; }
+    else if (pct >= 75) { statusKey = 'traffic_attention'; }
+
+    document.getElementById('traffic-status').textContent = t(statusKey);
+    document.getElementById('traffic-percent-val').textContent = unlim ? '∞' : pct.toFixed(pct < 10 ? 1 : 0);
+    document.querySelector('.traffic-percent .pct').style.display = unlim ? 'none' : '';
+
+    if (unlim) {
+      document.getElementById('traffic-bytes').textContent = formatBytes(s.used_bytes) + ' / ∞';
+    } else {
+      document.getElementById('traffic-bytes').textContent =
+        formatBytes(s.used_bytes) + ' / ' + formatBytes(s.total_bytes);
+    }
+
+    requestAnimationFrame(() => {
+      const fill = document.getElementById('progress-fill');
+      const glow = document.getElementById('progress-glow');
+      const bar = document.getElementById('progressbar');
+      if (unlim) {
+        // безлимит: вместо заливки — мягкая бегущая полоса по всей ширине
+        fill.style.width = '100%';
+        fill.style.background = 'linear-gradient(90deg, rgba(238,153,89,0.45), rgba(238,153,89,0.85), rgba(238,153,89,0.45))';
+        fill.style.backgroundSize = '200% 100%';
+        fill.style.animation = 'shimmer-unlim 4s linear infinite';
+        glow.style.display = 'none';
+        bar.setAttribute('aria-valuenow', '0');
+      } else {
+        fill.style.width = pct + '%';
+        fill.style.background = '';
+        fill.style.backgroundSize = '';
+        fill.style.animation = '';
+        glow.style.display = '';
+        glow.style.left = `calc(${pct}% - 8px)`;
+        bar.setAttribute('aria-valuenow', String(pct.toFixed(0)));
+      }
+    });
+
+    // шкала
+    const total = s.total_bytes;
+    const scale = document.getElementById('progress-scale');
+    if (unlim || total <= 0) {
+      scale.innerHTML = '<span>0</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span>';
+    } else {
+      const marks = [0, 0.25, 0.5, 0.75, 1].map(m => formatBytes(total * m, true));
+      scale.innerHTML = marks.map(m => '<span>' + m + '</span>').join('');
+    }
+  }
+
+  function renderInfo() {
+    const s = state.sub;
+    document.getElementById('tariff-label').textContent = t('tariff');
+    document.getElementById('expires-label').textContent = t('expires');
+    document.getElementById('days-unit').textContent = t('days_short');
+    document.getElementById('tariff-value').textContent = s.tariff_name || '—';
+    if (s.expire_at) {
+      document.getElementById('tariff-sub').textContent = t('until') + ' ' + formatDate(s.expire_at);
+    } else {
+      document.getElementById('tariff-sub').textContent = t('indefinitely');
+    }
+    const d = daysLeft(s.expire_at);
+    document.getElementById('days-value').textContent = d === null ? '∞' : d;
+    document.getElementById('days-unit').style.display = d === null ? 'none' : '';
+  }
+
+  function renderDevices() {
+    const s = state.sub;
+    document.getElementById('devices-title').textContent = t('devices');
+    if (!s.devices_total || s.devices_total <= 0) {
+      document.getElementById('devices-card').style.display = 'none';
+      return;
+    }
+    document.getElementById('devices-card').style.display = '';
+    document.getElementById('devices-sub').textContent = t('devices_of', {
+      used: s.devices_used, total: s.devices_total
+    });
+    const wrap = document.getElementById('devices-dots');
+    wrap.innerHTML = '';
+    for (let i = 0; i < Math.min(s.devices_total, 8); i++) {
+      const d = document.createElement('div');
+      d.className = 'dot' + (i < s.devices_used ? ' on' : '');
+      wrap.appendChild(d);
+    }
+  }
+
+  function renderInstall() {
+    const s = state.sub;
+    document.getElementById('install-title').textContent = t('install');
+    document.getElementById('install-hint').textContent = t('install_hint');
+
+    // tabs
+    const platforms = ['ios', 'android', 'windows', 'macos', 'androidTV', 'appleTV'];
+    const platformIcons = {
+      ios:      '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 12.6c0-2.4 2-3.6 2.1-3.6-1.1-1.7-2.9-1.9-3.5-1.9-1.5-.2-2.9.9-3.7.9-.8 0-1.9-.9-3.2-.8-1.6 0-3.2.9-4 2.4-1.7 3-.4 7.4 1.2 9.8.8 1.2 1.8 2.5 3.1 2.5 1.2-.1 1.7-.8 3.2-.8 1.5 0 1.9.8 3.2.8 1.3 0 2.2-1.2 3-2.4.7-.9 1-1.7 1.4-2.7-2.6-1-2.8-3.7-2.8-3.8M15 5.2c.6-.8 1-1.8.9-2.9-.9 0-2 .6-2.6 1.3-.6.7-1.1 1.7-1 2.8 1 .1 2-.5 2.7-1.2"/></svg>',
+      android:  '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 15.5c-.7 0-1.2-.6-1.2-1.3s.6-1.3 1.2-1.3 1.3.6 1.3 1.3-.6 1.3-1.3 1.3m-11 0c-.7 0-1.3-.6-1.3-1.3s.6-1.3 1.3-1.3 1.2.6 1.2 1.3-.5 1.3-1.2 1.3m11.4-6.1l2.5-4.3c.1-.3 0-.6-.2-.7-.2-.1-.5 0-.7.2L17 9c-1.5-.7-3.2-1-5-1-1.7 0-3.4.3-5 1L4.5 4.6c-.1-.2-.4-.3-.7-.2-.2.1-.3.4-.2.7l2.5 4.3C3.8 11 2.2 13.5 2 16.5h20c-.2-3-1.7-5.5-4.1-7.1"/></svg>',
+      windows:  '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5.5L10.5 4.5v7H3M11.5 4.4L21 3v8.5h-9.5M3 12.5h7.5v7L3 18.5M11.5 12.5H21V21l-9.5-1.3"/></svg>',
+      macos:    '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 12.6c0-2.4 2-3.6 2.1-3.6-1.1-1.7-2.9-1.9-3.5-1.9-1.5-.2-2.9.9-3.7.9-.8 0-1.9-.9-3.2-.8-1.6 0-3.2.9-4 2.4-1.7 3-.4 7.4 1.2 9.8.8 1.2 1.8 2.5 3.1 2.5 1.2-.1 1.7-.8 3.2-.8 1.5 0 1.9.8 3.2.8 1.3 0 2.2-1.2 3-2.4.7-.9 1-1.7 1.4-2.7-2.6-1-2.8-3.7-2.8-3.8"/></svg>',
+      androidTV:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>',
+      appleTV:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>'
+    };
+    const tabs = document.getElementById('platform-tabs');
+    tabs.innerHTML = '';
+    platforms.forEach(p => {
+      const b = document.createElement('button');
+      b.className = 'platform-tab' + (p === state.platform ? ' active' : '');
+      b.dataset.platform = p;
+      b.innerHTML = (platformIcons[p] || '') + '<span>' + t('platforms.' + p) + '</span>';
+      b.onclick = () => { state.platform = p; renderInstall(); };
+      tabs.appendChild(b);
+    });
+
+    // steps for platform — берём из app-config
+    renderSteps();
+  }
+
+  // app-config подгружаем рядом со страницей. Запрос делается один раз, кэшируется.
+  let appConfigPromise = null;
+  function getAppConfig() {
+    if (!appConfigPromise) {
+      appConfigPromise = fetch('./app-config.json')
+        .then(r => r.ok ? r.json() : null)
+        .catch(() => null);
+    }
+    return appConfigPromise;
+  }
+
+  async function renderSteps() {
+    const stepsEl = document.getElementById('steps');
+    stepsEl.innerHTML = '<div class="step skeleton" style="height: 80px;"></div><div class="step skeleton" style="height: 80px;"></div><div class="step skeleton" style="height: 80px;"></div>';
+
+    const cfg = await getAppConfig();
+    const sub = state.sub;
+    stepsEl.innerHTML = '';
+
+    let app = null;
+    if (cfg && cfg.platforms && cfg.platforms[state.platform]) {
+      app = cfg.platforms[state.platform].apps.find(a => a.name === 'Happ') || cfg.platforms[state.platform].apps[0];
+    }
+
+    // fallback inline steps если конфиг не подгрузился
+    const fallbackBlocks = [
+      {
+        title:       { ru: 'Установка приложения', en: 'Install the app', zh: '安装应用', fa: 'نصب برنامه', fr: 'Installation de l’app' },
+        description: { ru: 'Скачай Happ из App Store или с happ.su', en: 'Download Happ from App Store or happ.su', zh: '从 App Store 或 happ.su 下载 Happ', fa: 'Happ را از App Store یا happ.su دانلود کنید', fr: 'Télécharge Happ depuis l’App Store ou happ.su' },
+        buttons: [{ text: { ru: 'Скачать', en: 'Download', zh: '下载', fa: 'دانلود', fr: 'Télécharger' }, link: 'https://happ.su/main/ru', type: 'external' }]
+      },
+      {
+        title:       { ru: 'Добавь подписку', en: 'Add subscription', zh: '添加订阅', fa: 'افزودن اشتراک', fr: 'Ajouter l’abonnement' },
+        description: { ru: 'Нажми кнопку — Happ откроется и подписка добавится автоматически.', en: 'Tap the button — Happ will open and the subscription will be added automatically.', zh: '点击按钮，Happ 将打开并自动添加订阅。', fa: 'دکمه را بزنید — Happ باز می‌شود و اشتراک به‌طور خودکار اضافه می‌گردد.', fr: 'Appuie sur le bouton — Happ s’ouvrira et l’abonnement sera ajouté automatiquement.' },
+        buttons: [{ text: { ru: 'Добавить в Happ', en: 'Add to Happ', zh: '添加到 Happ', fa: 'افزودن به Happ', fr: 'Ajouter à Happ' }, link: sub.happ_link, type: 'subscriptionLink', primary: true }]
+      },
+      {
+        title:       { ru: 'Подключайся', en: 'Connect', zh: '连接', fa: 'اتصال', fr: 'Se connecter' },
+        description: { ru: 'Открой Happ и нажми большую кнопку в центре. Выбери сервер при необходимости.', en: 'Open Happ and tap the big center button. Pick a server if needed.', zh: '打开 Happ 并点击中央大按钮。如有需要选择服务器。', fa: 'Happ را باز کنید و دکمه بزرگ مرکز را بزنید. در صورت نیاز سرور را انتخاب کنید.', fr: 'Ouvre Happ et appuie sur le grand bouton central. Choisis un serveur si besoin.' },
+        buttons: []
+      }
+    ];
+
+    const blocks = (app && app.blocks && app.blocks.length) ? app.blocks : fallbackBlocks;
+    const loc = state.locale;
+
+    blocks.forEach((blk, i) => {
+      const step = document.createElement('div');
+      step.className = 'step';
+      const title = (blk.title && (blk.title[loc] || blk.title.en || blk.title.ru)) || '';
+      const desc  = (blk.description && (blk.description[loc] || blk.description.en || blk.description.ru)) || '';
+      let btnsHTML = '';
+      if (blk.buttons && blk.buttons.length) {
+        btnsHTML = '<div class="step-buttons">' + blk.buttons.map(btn => {
+          let href = btn.link || '';
+          // подмена для primary subscription link
+          if (btn.type === 'subscriptionLink' && sub.happ_link) href = sub.happ_link;
+          // плейсхолдер не заменён — подставим живой happ_link
+          if (typeof href === 'string' && href.includes('{{HAPP_CRYPT4_LINK}}')) href = sub.happ_link;
+          const txt = (btn.text && (btn.text[loc] || btn.text.en || btn.text.ru)) || '';
+          const cls = (btn.type === 'subscriptionLink' || btn.primary) ? 'step-btn primary' : 'step-btn';
+          const icon = (btn.type === 'subscriptionLink' || btn.primary)
+            ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>'
+            : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6M10 14L21 3"/></svg>';
+          return `<a class="${cls}" href="${esc(href)}" target="_blank" rel="noopener">${icon}<span>${esc(txt)}</span></a>`;
+        }).join('') + '</div>';
+      }
+      step.innerHTML = `
+        <div class="step-num">${i + 1}</div>
+        <div class="step-body">
+          <div class="step-title">${esc(title)}</div>
+          <div class="step-desc">${esc(desc)}</div>
+          ${btnsHTML}
+        </div>`;
+      stepsEl.appendChild(step);
+    });
+  }
+
+  function showToast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => el.classList.remove('show'), 2400);
+  }
+
+  /* =========================================================================
+     Actions
+     ========================================================================= */
+  const ACTIONS = [
+    { key: 'channel', url: 'https://t.me/RVPN_Channel',
+      icon: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 4.5L2 12l6 2 2 6 4-4 6 4z"/></svg>' },
+    { key: 'chat', url: 'https://t.me/RodinaVPN_Chat',
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>' },
+    { key: 'bot', url: 'https://t.me/rodinadl_bot',
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4M8 16h.01M16 16h.01"/></svg>' },
+    { key: 'support', url: 'https://t.me/Milena_rvpn',
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>' }
+  ];
+
+  function renderActions() {
+    const grid = document.getElementById('actions-grid');
+    grid.innerHTML = '';
+    ACTIONS.forEach(a => {
+      const el = document.createElement('a');
+      el.className = 'action-btn';
+      el.href = a.url;
+      el.target = '_blank';
+      el.rel = 'noopener';
+      const meta = t('actions.' + a.key);
+      el.innerHTML = `
+        <div class="action-icon">${a.icon}</div>
+        <div class="action-title">${esc(meta.title)}</div>
+        <div class="action-desc">${esc(meta.desc)}</div>`;
+      grid.appendChild(el);
+    });
+    document.getElementById('cabinet-label').textContent = t('cabinet_btn');
+    document.getElementById('footer-text').textContent = t('footer');
+  }
+
+  /* =========================================================================
+     Render all
+     ========================================================================= */
+  function renderAll() {
+    if (!state.sub) return;
+    renderHero();
+    renderTraffic();
+    renderInfo();
+    renderDevices();
+    renderInstall();
+    renderActions();
+  }
+
+  /* =========================================================================
+     Branding (логотип из app-config)
+     ========================================================================= */
+  async function applyBranding() {
+    const cfg = await getAppConfig();
+    if (!cfg || !cfg.brandingSettings) return;
+    const b = cfg.brandingSettings;
+    if (b.title) {
+      document.getElementById('brand-name').textContent = b.title;
+    }
+    if (b.logoUrl) {
+      const wrap = document.getElementById('brand-logo');
+      const img = document.createElement('img');
+      img.alt = b.title || 'logo';
+      img.src = b.logoUrl;
+      img.onerror = () => {
+        wrap.innerHTML = '<span class="brand-logo-fallback">R</span>';
+      };
+      wrap.innerHTML = '';
+      wrap.appendChild(img);
+    }
+  }
+
+  /* =========================================================================
+     Init
+     ========================================================================= */
+  document.addEventListener('DOMContentLoaded', async () => {
+    applyTheme(state.theme);
+    applyLocale(state.locale);
+    buildLangMenu();
+
+    // theme toggle
+    document.getElementById('theme-toggle').onclick = () => {
+      applyTheme(state.theme === 'dark' ? 'light' : 'dark');
+    };
+
+    // lang dropdown
+    document.getElementById('lang-btn').onclick = (e) => {
+      e.stopPropagation();
+      document.getElementById('lang-switch').classList.toggle('open');
+    };
+    document.addEventListener('click', () => {
+      document.getElementById('lang-switch').classList.remove('open');
+    });
+
+    applyBranding();
+
+    // load subscription
+    state.sub = await loadSubscriptionData();
+    renderAll();
+  });
+  </script>
+</body>
+</html>
