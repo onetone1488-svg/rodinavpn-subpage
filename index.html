@@ -10,6 +10,9 @@
   <meta name="description" content="<%- metaDescription %>" />
   <title><%- metaTitle %></title>
 
+  <!-- JSEncrypt для генерации Happ crypt4 deep link -->
+  <script src="https://cdn.jsdelivr.net/npm/jsencrypt@3.3.2/bin/jsencrypt.min.js"></script>
+
   <!-- EJS: base64-encoded JSON с данными подписки. Фоллбэк в JS если не заменился. -->
   <script>window.__REMNA_PANEL_DATA__='<%- panelData %>';</script>
 
@@ -1192,9 +1195,9 @@
     const expire = user.expiresAt ?? user.expireAt ?? user.expire_at ?? null;
     const sub_url = resp.subscriptionUrl ?? user.subscriptionUrl ?? user.subscription_url
                     ?? window.location.href.split('#')[0].split('?')[0];
-    // happCrypt4Link может не приходить — строим через btoa
+    // happCrypt4Link — генерируем RSA шифрованием если не пришёл из API
     const happ = resp.happCrypt4Link ?? user.happCrypt4Link ?? user.happ_link
-                 ?? ('happ://add/' + btoa(sub_url));
+                 ?? generateHappCrypt4Link(sub_url);
     const devUsed  = Number(user.hwidDevicesCount ?? user.usedDevices ?? user.devices_used ?? 0);
     const devTotal = Number(user.hwidDeviceLimit ?? user.deviceLimit ?? user.devices_total ?? 0);
     const tariff = user.tariffName ?? user.tariff_name ?? user.tariff ?? '';
@@ -1212,6 +1215,38 @@
       devices_total: devTotal,
       tariff_name: tariff
     };
+  }
+
+  /* =========================================================================
+     Happ crypt4 deep link генерация (RSA шифрование публичным ключом Happ)
+     ========================================================================= */
+  const HAPP_PUBLIC_KEY_V4 = `-----BEGIN PUBLIC KEY-----
+MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA3UZ0M3L4K+WjM3vkbQnz
+ozHg/cRbEXvQ6i4A8RVN4OM3rK9kU01FdjyoIgywve8OEKsFnVwERZAQZ1Trv60B
+hmaM76QQEE+EUlIOL9EpwKWGtTL5lYC1sT9XJMNP3/CI0gP5wwQI88cY/xedpOEB
+W72EmOOShHUm/b/3m+HPmqwc4ugKj5zWV5SyiT829aFA5DxSjmIIFBAms7DafmSq
+LFTYIQL5cShDY2u+/sqyAw9yZIOoqW2TFIgIHhLPWek/ocDU7zyOrlu1E0SmcQQb
+LFqHq02fsnH6IcqTv3N5Adb/CkZDDQ6HvQVBmqbKZKf7ZdXkqsc/Zw27xhG7OfXC
+tUmWsiL7zA+KoTd3avyOh93Q9ju4UQsHthL3Gs4vECYOCS9dsXXSHEY/1ngU/hjO
+WFF8QEE/rYV6nA4PTyUvo5RsctSQL/9DJX7XNh3zngvif8LsCN2MPvx6X+zLouBX
+zgBkQ9DFfZAGLWf9TR7KVjZC/3NsuUCDoAOcpmN8pENBbeB0puiKMMWSvll36+2M
+YR1Xs0MgT8Y9TwhE2+TnnTJOhzmHi/BxiUlY/w2E0s4ax9GHAmX0wyF4zeV7kDkc
+vHuEdc0d7vDmdw0oqCqWj0Xwq86HfORu6tm1A8uRATjb4SzjTKclKuoElVAVa5Jo
+oh/uZMozC65SmDw+N5p6Su8CAwEAAQ==
+-----END PUBLIC KEY-----`;
+
+  function generateHappCrypt4Link(subscriptionUrl) {
+    if (!subscriptionUrl) return '';
+    try {
+      const encrypt = new JSEncrypt();
+      encrypt.setPublicKey(HAPP_PUBLIC_KEY_V4);
+      const encrypted = encrypt.encrypt(subscriptionUrl);
+      if (!encrypted) return '';
+      return 'happ://crypt4/' + encodeURIComponent(encrypted);
+    } catch (e) {
+      console.error('Happ encrypt error:', e);
+      return '';
+    }
   }
 
   /* =========================================================================
