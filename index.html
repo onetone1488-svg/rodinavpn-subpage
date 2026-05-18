@@ -957,9 +957,6 @@
 
   <div class="toast" id="toast"></div>
 
-  <!-- EJS: бэкенд Remnawave вставит сюда base64-encoded JSON с данными подписки -->
-  <script>window.__REMNA_PANEL_DATA__ = '<%- panelData %>';</script>
-
   <script>
   /* =========================================================================
      RodinaVPN subscription page logic
@@ -1149,8 +1146,8 @@
   /* =========================================================================
      Подписочные данные
      Источники приоритета:
-       1. window.__REMNA_PANEL_DATA__ (EJS <%- panelData %> — base64 JSON, основной)
-       2. window.__SUBSCRIPTION_INFO__ (для тестирования через init_script)
+       1. window.__REMNA_PANEL_DATA__ (EJS panelData — base64 JSON, основной)
+       2. window.__SUBSCRIPTION_INFO__ (для тестирования)
        3. mock для локального превью
      ========================================================================= */
 
@@ -1170,7 +1167,7 @@
   function loadSubscriptionData() {
     // 1. EJS panelData (base64 JSON) — работает когда страница отдаётся Remnawave бэкендом
     const raw = window.__REMNA_PANEL_DATA__;
-    if (raw && typeof raw === 'string' && raw.length > 10 && !raw.includes('<%')) {
+    if (raw && typeof raw === 'string' && raw.length > 10 && !raw.includes('\x3C%')) {
       try {
         const parsed = JSON.parse(atob(raw));
         return Promise.resolve(normalize(parsed));
