@@ -18,13 +18,13 @@
 ### Шаг 1 — Скачать страницу
 
 ```bash
-curl -o index.html https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/index.html
+curl -o index.html https://raw.githubusercontent.com/onetone1488-svg/rodinavpn-subpage/main/index.html
 ```
 
 Или через `wget`:
 
 ```bash
-wget -O index.html https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/index.html
+wget -O index.html https://raw.githubusercontent.com/onetone1488-svg/rodinavpn-subpage/main/index.html
 ```
 
 Положи файл рядом с `docker-compose.yml` (обычно `/opt/remnawave/`).
